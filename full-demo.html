@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火车票预订系统 - 精美演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            z-index: 0;
+        }
+
+        /* 粒子背景效果 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg); 
+                opacity: 0.3; 
+            }
+            50% { 
+                transform: translateY(-30px) rotate(180deg); 
+                opacity: 0.8; 
+            }
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+            animation: slideDown 1s ease-out;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { 
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3); 
+            }
+            to { 
+                text-shadow: 2px 2px 20px rgba(255,255,255,0.8), 0 0 30px rgba(255,255,255,0.5); 
+            }
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu li {
+            cursor: pointer;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu li::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .nav-menu li:hover::before {
+            left: 100%;
+        }
+
+        .nav-menu li:hover, .nav-menu li.active {
+            background-color: rgba(255,255,255,0.25);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.15) rotate(360deg);
+            background: rgba(255,255,255,0.4);
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 确保所有页面元素都在正确的层级 */
+        .page * {
+            position: relative;
+            z-index: inherit;
+        }
+
+        /* 防止背景元素穿透 */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: -1;
+            border-radius: 25px;
+        }
+
+        .page.active::before {
+            z-index: -1;
+        }
+
+        /* 页面区域 */
+        .page {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+            min-height: 80vh;
+        }
+
+        .page.active {
+            display: block;
+            transform: translateY(0);
+            opacity: 1;
+            animation: pageSlideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+        }
+
+        @keyframes pageSlideIn {
+            from { 
+                transform: translateY(80px) scale(0.9);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out 0.3s both;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out 0.6s both;
+            opacity: 0.9;
+        }
+
+        .page-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 2;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-body {
+            padding: 3rem;
+        }
+
+        /* 搜索表单 */
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto auto;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding: 2.5rem;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .form-control {
+            padding: 1rem 1.5rem;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            font-size: 1.1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .form-control:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(108, 117, 125, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(40, 167, 69, 0.5);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(220, 53, 69, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 4px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 车次列表 */
+        .train-list {
+            margin-top: 3rem;
+        }
+
+        .train-item {
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            margin-bottom: 2.5rem;
+            padding: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            animation: trainItemSlideIn 0.8s ease-out;
+        }
+
+        .train-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.8s;
+        }
+
+        .train-item:hover::before {
+            left: 100%;
+        }
+
+        @keyframes trainItemSlideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(-80px) rotate(-5deg);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0) rotate(0deg);
+            }
+        }
+
+        .train-item:hover {
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        .train-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .train-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .train-type {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            animation: trainTypePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes trainTypePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .train-route {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(102, 126, 234, 0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .station {
+            text-align: center;
+            animation: stationPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes stationPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .station-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.8rem;
+        }
+
+        .station-time {
+            font-size: 1.3rem;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .train-duration {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            animation: durationGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes durationGlow {
+            0%, 100% { 
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 8px 35px rgba(102, 126, 234, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        .seat-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .seat-type {
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .seat-type::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .seat-type:hover::before {
+            opacity: 1;
+        }
+
+        .seat-type:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.15);
+            transform: translateY(-5px) scale(1.08);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .seat-type.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-5px) scale(1.08);
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.6);
+        }
+
+        .seat-name {
+            font-weight: bold;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .seat-price {
+            font-size: 1.4rem;
+            color: #dc3545;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        .seat-type.selected .seat-price {
+            color: white;
+        }
+
+        .seat-available {
+            font-size: 1rem;
+            color: #28a745;
+            margin-top: 0.8rem;
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+        }
+
+        /* 订单确认 */
+        .order-form {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            margin-bottom: 3rem;
+            padding: 2.5rem;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .form-section h3 {
+            margin-bottom: 1.5rem;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.8rem;
+            font-size: 1.5rem;
+        }
+
+        .passenger-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .passenger-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .passenger-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.1);
+        }
+
+        /* 订单列表 */
+        .order-list {
+            margin-top: 3rem;
+        }
+
+        .order-item {
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: orderItemSlideIn 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .order-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.08), transparent);
+            transition: left 0.8s;
+        }
+
+        .order-item:hover::before {
+            left: 100%;
+        }
+
+        @keyframes orderItemSlideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .order-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .order-status {
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            animation: statusPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .status-paid {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .status-unpaid {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+        }
+
+        .status-cancelled {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        /* 管理后台 */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2.5rem;
+            border-radius: 25px;
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            animation: statCardFloat 4s ease-in-out infinite;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        @keyframes statCardFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%);
+            animation: statCardShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes statCardShimmer {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.08) rotate(2deg);
+            box-shadow: 0 30px 60px rgba(102, 126, 234, 0.5);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.8rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            animation: numberCountUp 2s ease-out;
+        }
+
+        @keyframes numberCountUp {
+            from { transform: scale(0.3) rotate(-180deg); opacity: 0; }
+            to { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .admin-tables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            animation: tableContainerSlideIn 0.8s ease-out;
+        }
+
+        @keyframes tableContainerSlideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(-50px) rotate(-5deg);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0) rotate(0deg);
+            }
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .table-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: tableHeaderShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes tableHeaderShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .table-content {
+            padding: 2rem;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.4s ease;
+            border-radius: 15px;
+            margin-bottom: 0.8rem;
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-row:hover {
+            background: rgba(102, 126, 234, 0.08);
+            transform: translateX(8px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        /* 个人中心 */
+        .profile-form {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .train-route {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .seat-types {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-tables {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .passenger-item {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .page-body {
+                padding: 2rem;
+            }
+        }
+
+        /* 动画 */
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* 涟漪效果 */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-animation 0.8s linear;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(6);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes emergencyButtonGlow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(220, 53, 69, 0.8); }
+        }
+
+        /* 确保所有绝对定位元素都在正确的层级 */
+        .page-header::before,
+        .train-item::before,
+        .order-item::before,
+        .stat-card::before,
+        .table-header::before {
+            z-index: 0;
+        }
+
+        /* 防止任何元素意外穿透 */
+        .page,
+        .page-header,
+        .page-body,
+        .train-item,
+        .order-item,
+        .stat-card,
+        .table-container {
+            isolation: isolate;
+        }
+
+        /* 确保所有交互元素都有正确的层级 */
+        .btn,
+        .form-control,
+        .nav-menu li,
+        .seat-type {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🚄 火车票预订系统</div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="home">首页</li>
+                <li class="nav-item" data-page="search">车次查询</li>
+                <li class="nav-item" data-page="orders">我的订单</li>
+                <li class="nav-item" data-page="profile">个人中心</li>
+                <li class="nav-item" data-page="admin">管理后台</li>
+            </ul>
+            <div class="user-info">
+                <span id="userName">未登录</span>
+                <div class="user-avatar" id="userAvatar">👤</div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="main-content">
+        <!-- 首页 -->
+        <div id="home" class="page active fade-in">
+            <div class="page-header">
+                <div class="page-indicator">首页</div>
+                <h1>欢迎使用火车票预订系统</h1>
+                <p>快速、便捷、安全的在线订票服务</p>
+            </div>
+            <div class="page-body">
+                <div class="search-form">
+                    <div class="form-group">
+                        <label>出发站</label>
+                        <select class="form-control" id="fromStation">
+                            <option value="">请选择出发站</option>
+                            <option value="北京">北京</option>
+                            <option value="上海">上海</option>
+                            <option value="广州">广州</option>
+                            <option value="深圳">深圳</option>
+                            <option value="杭州">杭州</option>
+                            <option value="成都">成都</option>
+                            <option value="重庆">重庆</option>
+                            <option value="西安">西安</option>
+                            <option value="武汉">武汉</option>
+                            <option value="南京">南京</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>到达站</label>
+                        <select class="form-control" id="toStation">
+                            <option value="">请选择到达站</option>
+                            <option value="北京">北京</option>
+                            <option value="上海">上海</option>
+                            <option value="广州">广州</option>
+                            <option value="深圳">深圳</option>
+                            <option value="杭州">杭州</option>
+                            <option value="成都">成都</option>
+                            <option value="重庆">重庆</option>
+                            <option value="西安">西安</option>
+                            <option value="武汉">武汉</option>
+                            <option value="南京">南京</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>出发日期</label>
+                        <input type="date" class="form-control" id="travelDate" value="2025-12-25">
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary" onclick="searchTrains()">查询车次</button>
+                    </div>
+                </div>
+
+                <div id="hotRoutes" class="train-list">
+                    <h2 style="margin-bottom: 2rem; font-size: 2rem; color: #667eea;">热门路线</h2>
+                    <div class="train-item">
+                        <div class="train-header">
+                            <span class="train-number">G79</span>
+                            <span class="train-type">高铁</span>
+                        </div>
+                        <div class="train-route">
+                            <div class="station">
+                                <div class="station-name">北京南</div>
+                                <div class="station-time">08:00</div>
+                            </div>
+                            <div class="train-duration">5小时32分</div>
+                            <div class="station">
+                                <div class="station-name">上海虹桥</div>
+                                <div class="station-time">13:32</div>
+                            </div>
+                        </div>
+                        <div class="seat-types">
+                            <div class="seat-type" onclick="selectSeat(this)">
+                                <div class="seat-name">商务座</div>
+                                <div class="seat-price">¥1,738</div>
+                                <div class="seat-available">充足</div>
+                            </div>
+                            <div class="seat-type" onclick="selectSeat(this)">
+                                <div class="seat-name">一等座</div>
+                                <div class="seat-price">¥933</div>
+                                <div class="seat-available">充足</div>
+                            </div>
+                            <div class="seat-type" onclick="selectSeat(this)">
+                                <div class="seat-name">二等座</div>
+                                <div class="seat-price">¥553</div>
+                                <div class="seat-available">充足</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 车次查询结果页 -->
+        <div id="search" class="page fade-in">
+            <div class="page-header">
+                <div class="page-indicator">车次查询</div>
+                <h1>车次查询结果</h1>
+                <p>为您找到以下车次</p>
+            </div>
+            <div class="page-body">
+                <div class="train-list" id="searchResults">
+                    <!-- 动态生成车次列表 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 订单确认页 -->
+        <div id="booking" class="page fade-in">
+            <div class="page-header">
+                <div class="page-indicator">订单确认</div>
+                <h1>订单确认</h1>
+                <p>请确认您的订单信息</p>
+            </div>
+            <div class="page-body">
+                <div class="order-form">
+                    <div class="form-section">
+                        <h3>乘客信息</h3>
+                        <div class="passenger-list" id="passengerList">
+                            <div class="passenger-item">
+                                <input type="text" class="form-control" placeholder="乘客姓名" value="张三">
+                                <input type="text" class="form-control" placeholder="身份证号" value="110101199001011234">
+                                <select class="form-control">
+                                    <option value="adult">成人</option>
+                                    <option value="student">学生</option>
+                                    <option value="child">儿童</option>
+                                </select>
+                                <button class="btn btn-danger" onclick="removePassenger(this)">删除</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="addPassenger()" style="margin-top: 1.5rem;">添加乘客</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>联系方式</h3>
+                        <input type="text" class="form-control" placeholder="手机号码" value="13800138000" style="margin-bottom: 1.5rem;">
+                        <input type="email" class="form-control" placeholder="邮箱地址" value="test@example.com">
+                    </div>
+
+                    <div class="form-section">
+                        <h3>订单总金额</h3>
+                        <div style="text-align: center; font-size: 2.5rem; color: #dc3545; font-weight: bold;">¥553.00</div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button class="btn btn-secondary" onclick="showPage('search')" style="margin-right: 1.5rem;">返回修改</button>
+                        <button class="btn btn-success" onclick="submitOrder()">确认订单</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的订单 -->
+        <div id="orders" class="page fade-in">
+            <div class="page-header">
+                <div class="page-indicator">我的订单</div>
+                <h1>我的订单</h1>
+                <p>查看和管理您的订单</p>
+            </div>
+            <div class="page-body">
+                <div class="order-list" id="orderList">
+                    <div class="order-item">
+                        <div class="order-header">
+                            <div>
+                                <strong>订单号：</strong>ORD202412240001
+                                <div style="margin-top: 0.8rem; color: #666; font-size: 1.1rem;">
+                                    <span>G79 北京南 → 上海虹桥</span> | 
+                                    <span>2025-12-25 08:00</span> | 
+                                    <span>二等座</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="order-status status-paid">已支付</span>
+                                <div style="text-align: right; margin-top: 1rem;">
+                                    <div style="font-weight: bold; color: #dc3545; font-size: 1.3rem;">¥553.00</div>
+                                    <button class="btn btn-primary" style="margin-top: 1rem; padding: 0.8rem 1.5rem;" onclick="showTicket()">查看车票</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="color: #666; font-size: 1rem;">
+                            下单时间：2025-12-24 14:30:15 | 乘客：张三
+                        </div>
+                    </div>
+
+                    <div class="order-item">
+                        <div class="order-header">
+                            <div>
+                                <strong>订单号：</strong>ORD202412240002
+                                <div style="margin-top: 0.8rem; color: #666; font-size: 1.1rem;">
+                                    <span>K1234 成都 → 重庆</span> | 
+                                    <span>2025-12-26 10:30</span> | 
+                                    <span>硬座</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="order-status status-unpaid">待支付</span>
+                                <div style="text-align: right; margin-top: 1rem;">
+                                    <div style="font-weight: bold; color: #dc3545; font-size: 1.3rem;">¥45.50</div>
+                                    <button class="btn btn-success" style="margin-top: 1rem; padding: 0.8rem 1.5rem;" onclick="payOrder()">立即支付</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="color: #666; font-size: 1rem;">
+                            下单时间：2025-12-24 15:20:30 | 乘客：李四
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 个人中心 -->
+        <div id="profile" class="page fade-in">
+            <div class="page-header">
+                <div class="page-indicator">个人中心</div>
+                <h1>个人中心</h1>
+                <p>管理您的个人信息和设置</p>
+            </div>
+            <div class="page-body">
+                <div class="profile-form">
+                    <div class="form-section">
+                        <h3>基本信息</h3>
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" class="form-control" value="testuser" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>真实姓名</label>
+                            <input type="text" class="form-control" value="张三">
+                        </div>
+                        <div class="form-group">
+                            <label>身份证号</label>
+                            <input type="text" class="form-control" value="110101199001011234">
+                        </div>
+                        <div class="form-group">
+                            <label>手机号码</label>
+                            <input type="text" class="form-control" value="13800138000">
+                        </div>
+                        <div class="form-group">
+                            <label>邮箱地址</label>
+                            <input type="email" class="form-control" value="test@example.com">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>密码修改</h3>
+                        <div class="form-group">
+                            <label>当前密码</label>
+                            <input type="password" class="form-control" placeholder="请输入当前密码">
+                        </div>
+                        <div class="form-group">
+                            <label>新密码</label>
+                            <input type="password" class="form-control" placeholder="请输入新密码">
+                        </div>
+                        <div class="form-group">
+                            <label>确认新密码</label>
+                            <input type="password" class="form-control" placeholder="请再次输入新密码">
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button class="btn btn-success">保存修改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 管理后台 -->
+        <div id="admin" class="page fade-in">
+            <div class="page-header">
+                <div class="page-indicator">管理后台</div>
+                <h1>管理后台</h1>
+                <p>系统运营数据与管理</p>
+            </div>
+            <div class="page-body">
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">1,234</div>
+                        <div class="stat-label">今日订单</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">¥56,789</div>
+                        <div class="stat-label">今日收入</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">456</div>
+                        <div class="stat-label">在线用户</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">89.5%</div>
+                        <div class="stat-label">系统负载</div>
+                    </div>
+                </div>
+
+                <div class="admin-tables">
+                    <div class="table-container">
+                        <div class="table-header">最新订单</div>
+                        <div class="table-content">
+                            <div class="table-row">
+                                <div>ORD202412240001</div>
+                                <div>¥553.00</div>
+                            </div>
+                            <div class="table-row">
+                                <div>ORD202412240002</div>
+                                <div>¥45.50</div>
+                            </div>
+                            <div class="table-row">
+                                <div>ORD202412240003</div>
+                                <div>¥128.00</div>
+                            </div>
+                            <div class="table-row">
+                                <div>ORD202412240004</div>
+                                <div>¥892.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">热门路线</div>
+                        <div class="table-content">
+                            <div class="table-row">
+                                <div>北京-上海</div>
+                                <div>234次</div>
+                            </div>
+                            <div class="table-row">
+                                <div>广州-深圳</div>
+                                <div>189次</div>
+                            </div>
+                            <div class="table-row">
+                                <div>成都-重庆</div>
+                                <div>156次</div>
+                            </div>
+                            <div class="table-row">
+                                <div>杭州-南京</div>
+                                <div>123次</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 模拟数据
+        const mockTrains = [
+            {
+                number: 'G79',
+                type: '高铁',
+                from: '北京南',
+                to: '上海虹桥',
+                fromTime: '08:00',
+                toTime: '13:32',
+                duration: '5小时32分',
+                seats: [
+                    { type: '商务座', price: 1738, available: '充足' },
+                    { type: '一等座', price: 933, available: '充足' },
+                    { type: '二等座', price: 553, available: '充足' }
+                ]
+            },
+            {
+                number: 'D901',
+                type: '动车',
+                from: '北京南',
+                to: '上海虹桥',
+                fromTime: '14:30',
+                toTime: '20:45',
+                duration: '6小时15分',
+                seats: [
+                    { type: '一等座', price: 678, available: '充足' },
+                    { type: '二等座', price: 428, available: '少量' },
+                    { type: '无座', price: 428, available: '充足' }
+                ]
+            },
+            {
+                number: 'K123',
+                type: '普速',
+                from: '北京',
+                to: '上海',
+                fromTime: '18:20',
+                toTime: '09:45+1',
+                duration: '15小时25分',
+                seats: [
+                    { type: '软卧', price: 456, available: '充足' },
+                    { type: '硬卧', price: 312, available: '少量' },
+                    { type: '硬座', price: 156, available: '充足' }
+                ]
+            }
+        ];
+
+        // 页面切换功能
+        function showPage(pageId) {
+            // 验证页面ID
+            const validPages = ['home', 'search', 'booking', 'orders', 'profile', 'admin'];
+            if (!validPages.includes(pageId)) {
+                console.error('Invalid page ID:', pageId);
+                return;
+            }
+            
+            try {
+                // 隐藏所有页面并重置z-index
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                    page.style.zIndex = '1';
+                });
+                
+                // 显示指定页面并设置正确的z-index
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    targetPage.style.zIndex = '10';
+                    
+                    // 确保页面完全可见
+                    targetPage.scrollTop = 0;
+                    
+                    // 强制重新渲染
+                    targetPage.style.display = 'block';
+                    targetPage.style.opacity = '1';
+                    
+                    // 页面切换完成回调
+                    setTimeout(() => {
+                        onPageTransitionComplete(pageId);
+                    }, 100);
+                }
+                
+                // 更新导航状态
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                const activeNavItem = document.querySelector(`[data-page="${pageId}"]`);
+                if (activeNavItem) {
+                    activeNavItem.classList.add('active');
+                }
+                
+                // 特殊处理
+                if (pageId === 'search') {
+                    loadSearchResults();
+                }
+                
+                // 强制重新渲染
+                setTimeout(() => {
+                    if (targetPage) {
+                        targetPage.style.transform = 'translateY(0)';
+                    }
+                }, 50);
+                
+            } catch (error) {
+                console.error('Page transition error:', error);
+                // 发生错误时回到首页
+                showPage('home');
+            }
+        }
+
+        // 车次搜索
+        function searchTrains() {
+            const fromStation = document.getElementById('fromStation').value;
+            const toStation = document.getElementById('toStation').value;
+            const travelDate = document.getElementById('travelDate').value;
+            
+            if (!fromStation || !toStation) {
+                alert('请选择出发站和到达站');
+                return;
+            }
+            
+            showPage('search');
+        }
+
+        // 加载搜索结果
+        function loadSearchResults() {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '';
+            
+            mockTrains.forEach((train, index) => {
+                setTimeout(() => {
+                    const trainElement = createTrainElement(train);
+                    resultsContainer.appendChild(trainElement);
+                }, index * 200);
+            });
+        }
+
+        // 创建车次元素
+        function createTrainElement(train) {
+            const div = document.createElement('div');
+            div.className = 'train-item';
+            
+            div.innerHTML = `
+                <div class="train-header">
+                    <span class="train-number">${train.number}</span>
+                    <span class="train-type">${train.type}</span>
+                </div>
+                <div class="train-route">
+                    <div class="station">
+                        <div class="station-name">${train.from}</div>
+                        <div class="station-time">${train.fromTime}</div>
+                    </div>
+                    <div class="train-duration">${train.duration}</div>
+                    <div class="station">
+                        <div class="station-name">${train.to}</div>
+                        <div class="station-time">${train.toTime}</div>
+                    </div>
+                </div>
+                <div class="seat-types">
+                    ${train.seats.map(seat => `
+                        <div class="seat-type" onclick="selectSeat(this, '${train.number}', '${seat.type}', ${seat.price})">
+                            <div class="seat-name">${seat.type}</div>
+                            <div class="seat-price">¥${seat.price}</div>
+                            <div class="seat-available">${seat.available}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 选择座位类型
+        function selectSeat(element, trainNumber, seatType, price) {
+            // 清除其他选择
+            element.parentElement.querySelectorAll('.seat-type').forEach(seat => {
+                seat.classList.remove('selected');
+            });
+            
+            // 选择当前座位
+            element.classList.add('selected');
+            
+            // 存储选择信息
+            selectedTrain = { trainNumber, seatType, price };
+            
+            // 显示确认对话框
+            setTimeout(() => {
+                if (confirm(`确认选择 ${trainNumber} ${seatType} ¥${price} 吗？`)) {
+                    showPage('booking');
+                }
+            }, 400);
+        }
+
+        // 添加乘客
+        function addPassenger() {
+            const passengerList = document.getElementById('passengerList');
+            const newPassenger = document.createElement('div');
+            newPassenger.className = 'passenger-item';
+            newPassenger.innerHTML = `
+                <input type="text" class="form-control" placeholder="乘客姓名">
+                <input type="text" class="form-control" placeholder="身份证号">
+                <select class="form-control">
+                    <option value="adult">成人</option>
+                    <option value="student">学生</option>
+                    <option value="child">儿童</option>
+                </select>
+                <button class="btn btn-danger" onclick="removePassenger(this)">删除</button>
+            `;
+            passengerList.appendChild(newPassenger);
+        }
+
+        // 删除乘客
+        function removePassenger(button) {
+            const passengerList = document.getElementById('passengerList');
+            if (passengerList.children.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('至少需要一个乘客信息');
+            }
+        }
+
+        // 提交订单
+        function submitOrder() {
+            const passengers = document.querySelectorAll('.passenger-item');
+            if (passengers.length === 0) {
+                alert('请添加乘客信息');
+                return;
+            }
+            
+            // 验证乘客信息
+            for (let passenger of passengers) {
+                const name = passenger.querySelector('input[type="text"]').value;
+                const idCard = passenger.querySelectorAll('input[type="text"]')[1].value;
+                
+                if (!name || !idCard) {
+                    alert('请完善乘客信息');
+                    return;
+                }
+            }
+            
+            // 模拟提交成功
+            alert('订单提交成功！订单号：ORD' + Date.now());
+            showPage('orders');
+        }
+
+        // 查看车票
+        function showTicket() {
+            alert('车票详情功能演示\n\n车次：G79\n座位：二等座\n座位号：05车06A号\n发车时间：2025-12-25 08:00\n到达时间：2025-12-25 13:32');
+        }
+
+        // 支付订单
+        function payOrder() {
+            if (confirm('确认支付订单吗？')) {
+                alert('支付成功！');
+                showPage('orders');
+            }
+        }
+
+        // 模拟用户登录
+        function simulateLogin() {
+            document.getElementById('userName').textContent = '测试用户';
+            document.getElementById('userAvatar').textContent = '👤';
+        }
+
+        // 显示当前页面状态
+        function showCurrentPageIndicator() {
+            const currentPage = document.querySelector('.page.active');
+            if (currentPage) {
+                const pageId = currentPage.id;
+                const pageNames = {
+                    'home': '首页',
+                    'search': '车次查询',
+                    'booking': '订单确认',
+                    'orders': '我的订单',
+                    'profile': '个人中心',
+                    'admin': '管理后台'
+                };
+                
+                console.log('当前页面:', pageNames[pageId] || pageId);
+            }
+        }
+
+        // 页面切换完成后的回调
+        function onPageTransitionComplete(pageId) {
+            showCurrentPageIndicator();
+            
+            // 如果是管理后台，添加特殊提示
+            if (pageId === 'admin') {
+                setTimeout(() => {
+                    alert('您已进入管理后台。\n\n退出方法：\n• 点击导航栏中的"首页"\n• 按ESC键\n• 点击右上角的🏠按钮');
+                }, 500);
+            }
+        }
+
+        // 生成粒子背景
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 80;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                particle.style.width = particle.style.height = (Math.random() * 4 + 2) + 'px';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // 增强的按钮交互效果
+        function addButtonEffects() {
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // 创建涟漪效果
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 800);
+                });
+            });
+        }
+
+        // 数字计数动画
+        function animateNumbers() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const finalNumber = stat.textContent;
+                const numericValue = parseInt(finalNumber.replace(/[^0-9]/g, ''));
+                
+                if (numericValue) {
+                    let currentNumber = 0;
+                    const increment = numericValue / 50;
+                    const timer = setInterval(() => {
+                        currentNumber += increment;
+                        if (currentNumber >= numericValue) {
+                            currentNumber = numericValue;
+                            clearInterval(timer);
+                        }
+                        stat.textContent = finalNumber.replace(/\d+/, Math.floor(currentNumber));
+                    }, 30);
+                }
+            });
+        }
+
+        // 添加滚动动画
+        function addScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
+                    }
+                });
+            });
+
+            // 观察所有车次项目
+            document.querySelectorAll('.train-item, .order-item, .stat-card').forEach(item => {
+                observer.observe(item);
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // 生成粒子背景
+                createParticles();
+                
+                // 导航点击事件
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const pageId = this.dataset.page;
+                        if (pageId && typeof showPage === 'function') {
+                            showPage(pageId);
+                        }
+                    });
+                });
+                
+                // 添加按钮效果
+                addButtonEffects();
+                
+                // 模拟登录
+                simulateLogin();
+                
+                // 设置默认日期为明天
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const travelDateInput = document.getElementById('travelDate');
+                if (travelDateInput) {
+                    travelDateInput.value = tomorrow.toISOString().split('T')[0];
+                }
+                
+                // 数字计数动画
+                setTimeout(animateNumbers, 1500);
+                
+                // 添加滚动动画
+                addScrollAnimations();
+                
+                // 确保首页默认显示
+                const homePage = document.getElementById('home');
+                if (homePage) {
+                    homePage.classList.add('active');
+                    homePage.style.zIndex = '10';
+                }
+                
+                // 添加键盘快捷键（ESC键退出）
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        // ESC键返回首页
+                        showPage('home');
+                    }
+                });
+                
+                // 添加紧急退出按钮
+                addEmergencyExitButton();
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+            }
+        });
+
+        // 紧急退出按钮
+        function addEmergencyExitButton() {
+            const exitButton = document.createElement('div');
+            exitButton.innerHTML = '🏠';
+            exitButton.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                background: rgba(220, 53, 69, 0.9);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                cursor: pointer;
+                z-index: 10000;
+                box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+                transition: all 0.3s ease;
+                animation: emergencyButtonGlow 2s ease-in-out infinite;
+            `;
+            
+            exitButton.onmouseover = () => {
+                exitButton.style.transform = 'scale(1.1)';
+                exitButton.style.background = 'rgba(220, 53, 69, 1)';
+            };
+            
+            exitButton.onmouseout = () => {
+                exitButton.style.transform = 'scale(1)';
+                exitButton.style.background = 'rgba(220, 53, 69, 0.9)';
+            };
+            
+            exitButton.onclick = () => {
+                showPage('home');
+                exitButton.style.animation = 'pulse 0.5s ease';
+            };
+            
+            document.body.appendChild(exitButton);
+            
+            // 添加点击提示
+            exitButton.title = '点击返回首页 (ESC键也可以)';
+        }
+
+        // 全局变量
+        let selectedTrain = null;
+    </script>
+</body>
+</html>

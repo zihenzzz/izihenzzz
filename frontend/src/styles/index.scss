@@ -1,0 +1,181 @@
+// 导入增强样式
+@import './enhanced.scss';
+
+// 基础变量
+$primary-color: #667eea;
+$success-color: #28a745;
+$warning-color: #faad14;
+$danger-color: #dc3545;
+$text-color: #333;
+$text-secondary: #999;
+$border-color: #e8e8e8;
+$background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+// 通用样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  color: $text-color;
+  background-color: $background-color;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  
+  &:hover {
+    color: lighten($primary-color, 10%);
+  }
+}
+
+// 布局类
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// 卡片样式
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  
+  &-header {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid $border-color;
+  }
+}
+
+// 按钮样式
+.btn-primary {
+  background-color: $primary-color;
+  border-color: $primary-color;
+  color: #fff;
+  
+  &:hover {
+    background-color: lighten($primary-color, 5%);
+    border-color: lighten($primary-color, 5%);
+  }
+}
+
+.btn-success {
+  background-color: $success-color;
+  border-color: $success-color;
+  color: #fff;
+}
+
+.btn-warning {
+  background-color: $warning-color;
+  border-color: $warning-color;
+  color: #fff;
+}
+
+.btn-danger {
+  background-color: $danger-color;
+  border-color: $danger-color;
+  color: #fff;
+}
+
+// 文本颜色
+.text-primary {
+  color: $primary-color;
+}
+
+.text-success {
+  color: $success-color;
+}
+
+.text-warning {
+  color: $warning-color;
+}
+
+.text-danger {
+  color: $danger-color;
+}
+
+.text-secondary {
+  color: $text-secondary;
+}
+
+// 间距
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.ml-10 { margin-left: 10px; }
+.mr-10 { margin-right: 10px; }
+.p-10 { padding: 10px; }
+.p-20 { padding: 20px; }
+
+// 文本对齐
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+// 字体大小
+.text-small { font-size: 12px; }
+.text-medium { font-size: 14px; }
+.text-large { font-size: 16px; }
+.text-xl { font-size: 20px; }
+.text-xxl { font-size: 24px; }
+
+// 字体粗细
+.font-bold { font-weight: 600; }
+.font-normal { font-weight: 400; }
+
+// 动画
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}

@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火车订票系统 - 完整功能演示</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1890ff;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .nav a:hover {
+            background: #1890ff;
+            color: white;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            padding: 4rem 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-tabs {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-tab {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: #1890ff;
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .search-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-item label {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .search-item input {
+            padding: 0.75rem;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-item input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        .swap-btn {
+            background: #f0f0f0;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .swap-btn:hover {
+            background: #e0e0e0;
+            transform: rotate(180deg);
+        }
+
+        .search-btn {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            background: #40a9ff;
+            transform: translateY(-2px);
+        }
+
+        .features {
+            padding: 4rem 2rem;
+            background: white;
+            margin: 2rem 0;
+            border-radius: 16px;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+            background: #f9f9f9;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1890ff, #40a9ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .demo-section {
+            padding: 4rem 2rem;
+            background: #f5f7fa;
+            margin: 2rem 0;
+            border-radius: 16px;
+        }
+
+        .demo-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .demo-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .demo-card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .demo-card button {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .demo-card button:hover {
+            background: #40a9ff;
+        }
+
+        .tech-stack {
+            padding: 4rem 2rem;
+            background: white;
+            margin: 2rem 0;
+            border-radius: 16px;
+        }
+
+        .tech-stack h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .tech-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f9f9f9;
+            border-radius: 12px;
+        }
+
+        .tech-item i {
+            font-size: 3rem;
+            color: #1890ff;
+            margin-bottom: 1rem;
+        }
+
+        .tech-item h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-item p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            background: #001529;
+            color: rgba(255, 255, 255, 0.65);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-radius: 16px;
+            margin-top: 2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            float: right;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e8e8e8;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        .btn {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #40a9ff;
+        }
+
+        .btn-secondary {
+            background: #666;
+            margin-left: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: #777;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            background: #f0f9ff;
+            border-radius: 8px;
+        }
+
+        .stat-card.green {
+            background: #f6ffed;
+        }
+
+        .stat-card.orange {
+            background: #fff7e6;
+        }
+
+        .stat-card.purple {
+            background: #f9f0ff;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .nav {
+                display: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #52c41a;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 3000;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #ff4d4f;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-train"></i>
+                <span>火车订票系统</span>
+            </div>
+            <nav class="nav">
+                <a href="#home">首页</a>
+                <a href="#features">功能特色</a>
+                <a href="#demo">系统演示</a>
+                <a href="#tech">技术栈</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 首页 -->
+    <section id="home" class="container">
+        <div class="hero">
+            <h1>便捷出行，从这里开始</h1>
+            <p>快速查询、轻松预订、安全出行</p>
+            
+            <div class="search-box">
+                <div class="search-tabs">
+                    <span class="search-tab">火车票</span>
+                </div>
+                
+                <div class="search-form">
+                    <div class="search-item">
+                        <label>出发地</label>
+                        <input type="text" id="departure" placeholder="请输入出发城市" value="北京">
+                    </div>
+                    
+                    <button class="swap-btn" onclick="swapStations()">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                    
+                    <div class="search-item">
+                        <label>目的地</label>
+                        <input type="text" id="arrival" placeholder="请输入到达城市" value="上海">
+                    </div>
+                    
+                    <div class="search-item">
+                        <label>出发日期</label>
+                        <input type="date" id="date" value="2025-12-25">
+                    </div>
+                    
+                    <button class="search-btn" onclick="searchTrains()">
+                        <i class="fas fa-search"></i>
+                        查询车次
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能特色 -->
+    <section id="features" class="container">
+        <div class="features">
+            <h2>我们的服务</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>实时查询</h3>
+                    <p>车次信息实时更新，票价余票一目了然，支持多种查询方式</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>快速预订</h3>
+                    <p>简化购票流程，三步即可完成预订，智能座位推荐</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>安全支付</h3>
+                    <p>多重安全保护，支付更放心，支持多种支付方式</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>贴心服务</h3>
+                    <p>24小时客服支持，退改签更便捷，智能客服助手</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 系统演示 -->
+    <section id="demo" class="container">
+        <div class="demo-section">
+            <h2>系统功能演示</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3><i class="fas fa-user-lock"></i> 用户认证系统</h3>
+                    <p>支持用户名密码登录，实名认证，JWT Token管理，权限控制</p>
+                    <button onclick="showModal('loginModal')">体验登录</button>
+                </div>
+                <div class="demo-card">
+                    <h3><i class="fas fa-search"></i> 车次查询系统</h3>
+                    <p>智能查询，实时余票显示，多种排序方式，座位类型选择</p>
+                    <button onclick="showModal('searchModal')">体验查询</button>
+                </div>
+                <div class="demo-card">
+                    <h3><i class="fas fa-ticket-alt"></i> 订单管理系统</h3>
+                    <p>订单创建，支付确认，状态跟踪，退票改签功能</p>
+                    <button onclick="showModal('orderModal')">查看订单</button>
+                </div>
+                <div class="demo-card">
+                    <h3><i class="fas fa-cogs"></i> 管理后台</h3>
+                    <p>数据统计，车次管理，用户管理，订单管理，系统监控</p>
+                    <button onclick="showModal('adminModal')">管理后台</button>
+                </div>
+                <div class="demo-card">
+                    <h3><i class="fas fa-user"></i> 个人中心</h3>
+                    <p>个人信息管理，常用联系人，订单历史，账户设置</p>
+                    <button onclick="showModal('profileModal')">个人中心</button>
+                </div>
+                <div class="demo-card">
+                    <h3><i class="fas fa-mobile-alt"></i> 响应式设计</h3>
+                    <p>完美适配手机、平板、桌面设备，流畅的用户体验</p>
+                    <button onclick="showModal('responsiveModal')">响应式展示</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技术栈 -->
+    <section id="tech" class="container">
+        <div class="tech-stack">
+            <h2>技术架构</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <i class="fab fa-java"></i>
+                    <h4>Spring Boot</h4>
+                    <p>企业级Java框架</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-vuejs"></i>
+                    <h4>Vue 3</h4>
+                    <p>现代化前端框架</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-database"></i>
+                    <h4>MySQL</h4>
+                    <p>关系型数据库</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>Spring Security</h4>
+                    <p>安全认证框架</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-key"></i>
+                    <h4>JWT</h4>
+                    <p>无状态认证</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-cube"></i>
+                    <h4>Element Plus</h4>
+                    <p>Vue UI组件库</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 火车订票系统 | MiniMax Agent 开发</p>
+            <p>基于 Spring Boot + Vue 3 的完整解决方案</p>
+        </div>
+    </footer>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <button class="close-btn" onclick="hideModal('loginModal')">&times;</button>
+            <h2>🔐 用户登录</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="loginUsername" required placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="loginPassword" required placeholder="请输入密码">
+                </div>
+                <button type="submit" class="btn">登录</button>
+                <button type="button" class="btn btn-secondary" onclick="showModal('registerModal')">注册新用户</button>
+            </form>
+            <div style="margin-top: 1rem; padding: 1rem; background: #f0f9ff; border-radius: 6px; border-left: 4px solid #1890ff;">
+                <h4 style="color: #1890ff; margin-bottom: 0.5rem;">演示账号</h4>
+                <p><strong>管理员：</strong>admin / admin123</p>
+                <p><strong>普通用户：</strong>test / test123</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="close-btn" onclick="hideModal('registerModal')">&times;</button>
+            <h2>📝 用户注册</h2>
+            <form onsubmit="handleRegister(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" id="registerUsername" required placeholder="3-20个字符">
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" id="registerPassword" required placeholder="至少6个字符">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" id="registerConfirmPassword" required placeholder="请再次输入密码">
+                </div>
+                <div class="form-group">
+                    <label>真实姓名</label>
+                    <input type="text" id="registerRealName" required placeholder="请输入真实姓名">
+                </div>
+                <div class="form-group">
+                    <label>身份证号</label>
+                    <input type="text" id="registerIdCard" required placeholder="18位身份证号码">
+                </div>
+                <div class="form-group">
+                    <label>手机号</label>
+                    <input type="tel" id="registerPhone" required placeholder="11位手机号码">
+                </div>
+                <div class="form-group">
+                    <label>邮箱（选填）</label>
+                    <input type="email" id="registerEmail" placeholder="用于接收订单通知">
+                </div>
+                <button type="submit" class="btn">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 查询结果模态框 -->
+    <div id="searchModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 900px;">
+            <button class="close-btn" onclick="hideModal('searchModal')">&times;</button>
+            <h2>🚄 车次查询结果</h2>
+            <div style="background: #f0f9ff; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                <strong>查询条件：</strong>北京 → 上海 | 2025-12-25
+            </div>
+            <div id="searchResults">
+                <div class="train-card" style="margin-bottom: 1rem; padding: 1.5rem; border: 2px solid #e8e8e8; border-radius: 8px; transition: all 0.3s;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                                <strong style="font-size: 1.2rem;">G101</strong>
+                                <span style="background: #52c41a; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">高铁</span>
+                            </div>
+                            <div style="color: #666;">
+                                <i class="fas fa-map-marker-alt"></i> 北京南 → 上海虹桥<br>
+                                <i class="fas fa-clock"></i> 08:00 - 12:36 | <i class="fas fa-hourglass-half"></i> 4小时36分
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="margin-bottom: 0.5rem;">
+                                <div>二等座: <strong style="color: #ff6600;">¥553</strong></div>
+                                <div style="color: #52c41a; font-size: 0.9rem;">余票充足</div>
+                            </div>
+                            <button class="btn" onclick="bookTrain('G101', 'SECOND_CLASS')">立即预订</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="train-card" style="margin-bottom: 1rem; padding: 1.5rem; border: 2px solid #e8e8e8; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                                <strong style="font-size: 1.2rem;">G103</strong>
+                                <span style="background: #52c41a; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">高铁</span>
+                            </div>
+                            <div style="color: #666;">
+                                <i class="fas fa-map-marker-alt"></i> 北京南 → 上海虹桥<br>
+                                <i class="fas fa-clock"></i> 09:00 - 13:30 | <i class="fas fa-hourglass-half"></i> 4小时30分
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="margin-bottom: 0.5rem;">
+                                <div>二等座: <strong style="color: #ff6600;">¥553</strong></div>
+                                <div style="color: #fa8c16; font-size: 0.9rem;">余票12张</div>
+                            </div>
+                            <button class="btn" onclick="bookTrain('G103', 'SECOND_CLASS')">立即预订</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单模态框 -->
+    <div id="orderModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 800px;">
+            <button class="close-btn" onclick="hideModal('orderModal')">&times;</button>
+            <h2>📋 我的订单</h2>
+            <div id="orderList">
+                <div class="order-card" style="margin-bottom: 1rem; padding: 1.5rem; border: 1px solid #e8e8e8; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                                <strong>RB123456789</strong>
+                                <span style="background: #52c41a; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">已支付</span>
+                            </div>
+                            <div style="color: #666;">
+                                <i class="fas fa-train"></i> G101 | <i class="fas fa-map-marker-alt"></i> 北京南 → 上海虹桥<br>
+                                <i class="fas fa-calendar"></i> 2025-12-25 | <i class="fas fa-user"></i> 张三
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.5rem; color: #ff6600; margin-bottom: 0.5rem;">¥553</div>
+                            <button class="btn btn-secondary" onclick="cancelOrder('RB123456789')">退票</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-card" style="margin-bottom: 1rem; padding: 1.5rem; border: 1px solid #e8e8e8; border-radius: 8px; border-left: 4px solid #faad14;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                                <strong>RB987654321</strong>
+                                <span style="background: #faad14; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">待支付</span>
+                            </div>
+                            <div style="color: #666;">
+                                <i class="fas fa-train"></i> G103 | <i class="fas fa-map-marker-alt"></i> 北京南 → 上海虹桥<br>
+                                <i class="fas fa-calendar"></i> 2025-12-25 | <i class="fas fa-user"></i> 李四
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.5rem; color: #ff6600; margin-bottom: 0.5rem;">¥553</div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <button class="btn" onclick="payOrder('RB987654321')">立即支付</button>
+                                <button class="btn btn-secondary" onclick="cancelOrder('RB987654321')">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理后台模态框 -->
+    <div id="adminModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 1000px;">
+            <button class="close-btn" onclick="hideModal('adminModal')">&times;</button>
+            <h2>⚙️ 管理后台</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #1890ff;">8</div>
+                    <div class="stat-label">车次总数</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-value" style="color: #52c41a;">156</div>
+                    <div class="stat-label">订单总数</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-value" style="color: #fa8c16;">89</div>
+                    <div class="stat-label">用户总数</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-value" style="color: #722ed1;">¥45,230</div>
+                    <div class="stat-label">总收入</div>
+                </div>
+            </div>
+            <h3>📊 最近订单</h3>
+            <div style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 1rem; background: #f5f5f5; font-weight: bold;">
+                    <div>订单号</div>
+                    <div>车次</div>
+                    <div>金额</div>
+                    <div>状态</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 1rem; border-top: 1px solid #e8e8e8;">
+                    <div>RB123456789</div>
+                    <div>G101</div>
+                    <div>¥553</div>
+                    <div style="color: #52c41a;">已支付</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 1rem; border-top: 1px solid #e8e8e8;">
+                    <div>RB987654321</div>
+                    <div>G103</div>
+                    <div>¥553</div>
+                    <div style="color: #faad14;">待支付</div>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                <button class="btn">添加车次</button>
+                <button class="btn">用户管理</button>
+                <button class="btn">订单管理</button>
+                <button class="btn">系统设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 个人中心模态框 -->
+    <div id="profileModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="close-btn" onclick="hideModal('profileModal')">&times;</button>
+            <h2>👤 个人中心</h2>
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; margin-bottom: 2rem;">
+                <div style="text-align: center;">
+                    <div style="width: 80px; height: 80px; background: #1890ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: white; font-size: 2rem;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4>测试用户</h4>
+                    <p style="color: #666;">普通用户</p>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>真实姓名</label>
+                        <input type="text" value="测试用户" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>手机号</label>
+                        <input type="text" value="138****8000" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>邮箱</label>
+                        <input type="text" value="test@example.com" readonly>
+                    </div>
+                </div>
+            </div>
+            <h4>📋 常用联系人</h4>
+            <div style="background: #f9f9f9; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>张三</strong><br>
+                        <small style="color: #666;">110***********234 | 138****8000</small>
+                    </div>
+                    <button class="btn btn-secondary" style="margin-left: 1rem;">删除</button>
+                </div>
+            </div>
+            <button class="btn">添加联系人</button>
+        </div>
+    </div>
+
+    <!-- 响应式展示模态框 -->
+    <div id="responsiveModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-btn" onclick="hideModal('responsiveModal')">&times;</button>
+            <h2>📱 响应式设计</h2>
+            <div style="text-align: center; margin: 2rem 0;">
+                <div style="display: inline-block; width: 300px; height: 500px; border: 10px solid #333; border-radius: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative;">
+                    <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; background: #333; border-radius: 2px;"></div>
+                    <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 100px; height: 4px; background: #333; border-radius: 2px;"></div>
+                    <div style="padding: 2rem; color: white; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                        <h3>移动端优化</h3>
+                        <p>完美适配各种设备尺寸</p>
+                        <div style="margin-top: 1rem;">
+                            <i class="fas fa-mobile-alt" style="font-size: 2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #666;">
+                系统采用响应式设计，在手机、平板、桌面设备上都有良好的用户体验
+            </p>
+        </div>
+    </div>
+
+    <!-- 通知 -->
+    <div id="notification" class="notification hidden">
+        <span id="notificationText">操作成功！</span>
+    </div>
+
+    <script>
+        // 工具函数
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = 'notification ' + type;
+            notification.classList.remove('hidden');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.classList.add('hidden'), 300);
+            }, 3000);
+        }
+
+        function swapStations() {
+            const departure = document.getElementById('departure');
+            const arrival = document.getElementById('arrival');
+            const temp = departure.value;
+            departure.value = arrival.value;
+            arrival.value = temp;
+            showNotification('已交换出发地和目的地');
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function searchTrains() {
+            const departure = document.getElementById('departure').value;
+            const arrival = document.getElementById('arrival').value;
+            const date = document.getElementById('date').value;
+            
+            if (!departure || !arrival || !date) {
+                showNotification('请填写完整的查询信息', 'error');
+                return;
+            }
+            
+            showNotification('正在查询车次信息...', 'success');
+            setTimeout(() => showModal('searchModal'), 1000);
+        }
+
+        function bookTrain(trainCode, seatType) {
+            showNotification(`预订 ${trainCode} ${seatType} 成功！`, 'success');
+            hideModal('searchModal');
+            setTimeout(() => showModal('orderModal'), 1500);
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if ((username === 'admin' && password === 'admin123') || 
+                (username === 'test' && password === 'test123')) {
+                showNotification(`登录成功！欢迎 ${username}`, 'success');
+                hideModal('loginModal');
+            } else {
+                showNotification('用户名或密码错误', 'error');
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                showNotification('两次输入的密码不一致', 'error');
+                return;
+            }
+            
+            showNotification('注册成功！请使用新账号登录。', 'success');
+            hideModal('registerModal');
+            setTimeout(() => showModal('loginModal'), 1500);
+        }
+
+        function payOrder(orderNo) {
+            showNotification(`订单 ${orderNo} 支付成功！`, 'success');
+        }
+
+        function cancelOrder(orderNo) {
+            if (confirm(`确认取消订单 ${orderNo}？`)) {
+                showNotification(`订单 ${orderNo} 已取消`, 'success');
+            }
+        }
+
+        // 事件监听
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 页面加载动画
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // 添加一些交互效果
+        document.querySelectorAll('.demo-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // 添加搜索框焦点效果
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.style.borderColor = '#1890ff';
+                this.style.boxShadow = '0 0 0 2px rgba(24, 144, 255, 0.2)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+                this.style.borderColor = '#e8e8e8';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // 添加按钮点击效果
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.background = 'rgba(255, 255, 255, 0.5)';
+                ripple.style.borderRadius = '50%';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s linear';
+                ripple.style.left = (e.clientX - e.target.offsetLeft) + 'px';
+                ripple.style.top = (e.clientY - e.target.offsetTop) + 'px';
+                ripple.style.width = ripple.style.height = '20px';
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            .train-card:hover {
+                border-color: #1890ff !important;
+                box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+            }
+            
+            .order-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

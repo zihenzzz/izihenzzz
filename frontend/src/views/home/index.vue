@@ -7,25 +7,32 @@
       </div>
       <div class="hero-content">
         <h1 class="hero-title">便捷出行，从这里开始</h1>
-        <p class="hero-subtitle">快速查询、轻松预订、安全出行</p>
+        <p class="hero-subtitle">汽车票在线预订 · 快速查询 · 轻松购票</p>
         
         <!-- 搜索框 -->
         <div class="search-box">
           <div class="search-tabs">
-            <span class="search-tab active">火车票</span>
+            <span class="search-tab active">🚌 汽车票</span>
           </div>
           
           <div class="search-form">
             <div class="search-row">
               <div class="search-item">
                 <label>出发地</label>
-                <el-input
+                <el-select
                   v-model="searchForm.departure"
-                  placeholder="请输入出发城市"
+                  placeholder="请选择出发城市"
                   size="large"
-                  :prefix-icon="Location"
+                  filterable
                   class="ripple-effect"
-                />
+                >
+                  <el-option
+                    v-for="station in stations"
+                    :key="station.id"
+                    :label="station.name"
+                    :value="station.name"
+                  />
+                </el-select>
               </div>
               
               <div class="swap-btn ripple-effect" @click="swapStations">
@@ -34,13 +41,20 @@
               
               <div class="search-item">
                 <label>目的地</label>
-                <el-input
+                <el-select
                   v-model="searchForm.arrival"
-                  placeholder="请输入到达城市"
+                  placeholder="请选择到达城市"
                   size="large"
-                  :prefix-icon="Location"
+                  filterable
                   class="ripple-effect"
-                />
+                >
+                  <el-option
+                    v-for="station in stations"
+                    :key="station.id"
+                    :label="station.name"
+                    :value="station.name"
+                  />
+                </el-select>
               </div>
               
               <div class="search-item date-picker">
@@ -58,7 +72,7 @@
               <div class="search-item search-btn">
                 <el-button type="primary" size="large" @click="handleSearch" :loading="loading">
                   <el-icon><Search /></el-icon>
-                  查询车次
+                  查询班次
                 </el-button>
               </div>
             </div>
@@ -86,8 +100,8 @@
               <span class="station">{{ line.to }}</span>
             </div>
             <div class="line-info">
-              <span class="trains-count">{{ line.count }}趟车次</span>
-              <el-button type="primary" size="small" text>立即查询</el-button>
+              <span class="trains-count">{{ line.count }}趟班次</span>
+              <span class="price">¥{{ line.price }}起</span>
             </div>
           </div>
         </div>
@@ -104,7 +118,7 @@
               <el-icon><Timer /></el-icon>
             </div>
             <h3>实时查询</h3>
-            <p>车次信息实时更新，票价余票一目了然</p>
+            <p>班次信息实时更新，票价余票一目了然</p>
           </div>
           <div class="feature-card ripple-effect">
             <div class="feature-icon success">
@@ -134,14 +148,16 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Location, Switch, Search, Right, Timer, CircleCheck, Lock, Service } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { getAllStations } from '@/api/train'
 import dayjs from 'dayjs'
 
 const router = useRouter()
 const loading = ref(false)
+const stations = ref([])
 
 const searchForm = reactive({
   departure: '',
@@ -150,13 +166,25 @@ const searchForm = reactive({
 })
 
 const hotLines = ref([
-  { id: 1, from: '北京', to: '上海', count: 42 },
-  { id: 2, from: '广州', to: '深圳', count: 38 },
-  { id: 3, from: '杭州', to: '南京', count: 25 },
-  { id: 4, from: '武汉', to: '成都', count: 18 },
-  { id: 5, from: '西安', to: '北京', count: 22 },
-  { id: 6, from: '重庆', to: '上海', count: 15 }
+  { id: 1, from: '广州天河客运站', to: '深圳罗湖汽车站', count: 15, price: 65 },
+  { id: 2, from: '杭州客运中心站', to: '南京汽车客运站', count: 8, price: 98 },
+  { id: 3, from: '成都新南门汽车站', to: '重庆龙头寺汽车站', count: 12, price: 110 },
+  { id: 4, from: '上海长途客运总站', to: '杭州客运中心站', count: 10, price: 78 },
+  { id: 5, from: '武汉傅家坡客运站', to: '成都新南门汽车站', count: 6, price: 260 },
+  { id: 6, from: '北京六里桥客运站', to: '上海长途客运总站', count: 5, price: 280 }
 ])
+
+// 获取车站列表
+const fetchStations = async () => {
+  try {
+    const response = await getAllStations()
+    if (response.data.code === 200) {
+      stations.value = response.data.data || []
+    }
+  } catch (error) {
+    console.error('获取车站列表失败', error)
+  }
+}
 
 // 禁用过去的日期
 const disabledDate = (time) => {
@@ -170,7 +198,7 @@ const swapStations = () => {
   searchForm.arrival = temp
 }
 
-// 搜索车次
+// 搜索班次
 const handleSearch = () => {
   if (!searchForm.departure || !searchForm.arrival || !searchForm.date) {
     ElMessage.warning('请填写完整的查询信息')
@@ -192,8 +220,21 @@ const handleSearch = () => {
 const quickSearch = (line) => {
   searchForm.departure = line.from
   searchForm.arrival = line.to
-  handleSearch()
+  searchForm.date = dayjs().format('YYYY-MM-DD')
+  
+  router.push({
+    name: 'Search',
+    query: {
+      from: line.from,
+      to: line.to,
+      date: searchForm.date
+    }
+  })
 }
+
+onMounted(() => {
+  fetchStations()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -213,8 +254,7 @@ const quickSearch = (line) => {
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-      linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 50%, #0d47a1 100%);
     
     &::before {
       content: '';
@@ -225,21 +265,8 @@ const quickSearch = (line) => {
       bottom: 0;
       background: 
         radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
-        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></svg>') repeat;
-      background-size: 100px 100px, 200px 200px, 100px 100px;
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
       animation: background-shift 20s ease-in-out infinite;
-    }
-    
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.02) 50%, transparent 70%);
-      animation: light-sweep 8s linear infinite;
     }
   }
   
@@ -266,14 +293,7 @@ const quickSearch = (line) => {
     font-weight: 800;
     color: #fff;
     margin-bottom: 16px;
-    text-shadow: 
-      0 2px 8px rgba(0, 0, 0, 0.3),
-      0 0 20px rgba(255, 255, 255, 0.2);
-    animation: title-glow 3s ease-in-out infinite alternate;
-    background: linear-gradient(45deg, #fff, #f0f8ff, #fff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
   
   .hero-subtitle {
@@ -281,33 +301,15 @@ const quickSearch = (line) => {
     color: rgba(255, 255, 255, 0.95);
     margin-bottom: 48px;
     font-weight: 300;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    animation: fade-in-up 1s ease-out 0.5s both;
   }
 }
 
 .search-box {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border-radius: 20px;
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  animation: slide-in-up 0.8s ease-out 0.3s both;
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-  }
   
   .search-tabs {
     padding: 20px 28px;
@@ -317,22 +319,9 @@ const quickSearch = (line) => {
     .search-tab {
       font-size: 18px;
       font-weight: 700;
-      color: #667eea;
+      color: #1e88e5;
       padding-bottom: 12px;
-      border-bottom: 3px solid #667eea;
-      position: relative;
-      
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: -3px;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-        border-radius: 2px;
-        animation: shimmer 2s infinite;
-      }
+      border-bottom: 3px solid #1e88e5;
     }
   }
   
@@ -369,19 +358,15 @@ const quickSearch = (line) => {
         height: 48px;
         font-size: 16px;
         font-weight: 600;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
         border: none;
         border-radius: 24px;
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 20px rgba(30, 136, 229, 0.3);
         transition: all 0.3s ease;
         
         &:hover {
           transform: translateY(-2px);
-          box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
-        }
-        
-        &:active {
-          transform: translateY(0);
+          box-shadow: 0 12px 25px rgba(30, 136, 229, 0.4);
         }
       }
     }
@@ -396,17 +381,16 @@ const quickSearch = (line) => {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #667eea;
+    color: #1e88e5;
     transition: all 0.3s ease;
     margin-bottom: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border: 2px solid rgba(102, 126, 234, 0.2);
+    border: 2px solid rgba(30, 136, 229, 0.2);
     
     &:hover {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
       color: white;
       transform: rotate(180deg) scale(1.1);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
     }
     
     .el-icon {
@@ -425,9 +409,7 @@ const quickSearch = (line) => {
 
 .hot-lines-section {
   padding: 80px 0;
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: #f5f7fa;
   
   .hot-lines-grid {
     display: grid;
@@ -436,41 +418,16 @@ const quickSearch = (line) => {
   }
   
   .hot-line-card {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: #fff;
     border-radius: 20px;
     padding: 28px;
     cursor: pointer;
     transition: all 0.4s ease;
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.08),
-      0 0 0 1px rgba(255, 255, 255, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    position: relative;
-    overflow: hidden;
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      transition: left 0.6s;
-    }
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     
     &:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.15),
-        0 0 0 1px rgba(102, 126, 234, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-      
-      &::before {
-        left: 100%;
-      }
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     }
     
     .line-route {
@@ -484,13 +441,11 @@ const quickSearch = (line) => {
         font-size: 22px;
         font-weight: 700;
         color: #333;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
       }
       
       .arrow {
-        color: #667eea;
+        color: #1e88e5;
         font-size: 28px;
-        animation: arrow-bounce 2s infinite;
       }
     }
     
@@ -502,21 +457,12 @@ const quickSearch = (line) => {
       .trains-count {
         color: #666;
         font-size: 15px;
-        font-weight: 500;
       }
       
-      .el-button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 20px;
-        padding: 8px 16px;
+      .price {
+        color: #ff6600;
+        font-size: 18px;
         font-weight: 600;
-        transition: all 0.3s ease;
-        
-        &:hover {
-          transform: scale(1.05);
-          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
       }
     }
   }
@@ -524,9 +470,6 @@ const quickSearch = (line) => {
 
 .features-section {
   padding: 80px 0;
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   
   .features-grid {
     display: grid;
@@ -537,103 +480,39 @@ const quickSearch = (line) => {
   .feature-card {
     text-align: center;
     padding: 36px 28px;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: #fff;
     border-radius: 24px;
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.08),
-      0 0 0 1px rgba(255, 255, 255, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
     
     &:hover {
-      transform: translateY(-8px) scale(1.03);
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.12),
-        0 0 0 1px rgba(102, 126, 234, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-      
-      &::before {
-        opacity: 1;
-      }
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
     }
     
     .feature-icon {
       width: 72px;
       height: 72px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 20px;
       font-size: 32px;
       color: #fff;
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 1;
-      
-      &::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 50%;
-        z-index: -1;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
+      box-shadow: 0 8px 20px rgba(30, 136, 229, 0.3);
       
       &.success {
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        
-        &::before {
-          background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
       }
       
       &.warning {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        
-        &::before {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
       }
       
       &.danger {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        
-        &::before {
-          background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-      }
-      
-      &:hover {
-        transform: scale(1.1);
-        
-        &::before {
-          opacity: 1;
-          animation: icon-pulse 1s infinite;
-        }
       }
     }
     
@@ -642,156 +521,39 @@ const quickSearch = (line) => {
       font-weight: 700;
       margin-bottom: 12px;
       color: #333;
-      position: relative;
-      z-index: 1;
     }
     
     p {
       font-size: 15px;
       color: #666;
       line-height: 1.7;
-      position: relative;
-      z-index: 1;
     }
   }
 }
 
-// Enhanced Animations
 @keyframes background-shift {
   0%, 100% {
-    background-position: 0% 50%, 100% 50%, 0 0;
+    background-position: 0% 50%;
   }
   50% {
-    background-position: 100% 50%, 0% 50%, 0 0;
+    background-position: 100% 50%;
   }
 }
 
-@keyframes light-sweep {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes title-glow {
-  0% {
-    text-shadow: 
-      0 2px 8px rgba(0, 0, 0, 0.3),
-      0 0 20px rgba(255, 255, 255, 0.2);
-  }
-  100% {
-    text-shadow: 
-      0 2px 8px rgba(0, 0, 0, 0.3),
-      0 0 30px rgba(255, 255, 255, 0.4),
-      0 0 40px rgba(102, 126, 234, 0.3);
-  }
-}
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -100% 0;
-  }
-  100% {
-    background-position: 100% 0;
-  }
-}
-
-@keyframes arrow-bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateX(0);
-  }
-  40% {
-    transform: translateX(5px);
-  }
-  60% {
-    transform: translateX(3px);
-  }
-}
-
-@keyframes icon-pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-// Ripple Effect for Interactive Elements
 .ripple-effect {
   position: relative;
   overflow: hidden;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-  }
-  
-  &:active::after {
-    width: 300px;
-    height: 300px;
-  }
 }
 
-// Enhanced Input Styles
+:deep(.el-select) {
+  width: 100%;
+}
+
 :deep(.el-input__wrapper) {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  &.is-focus {
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
-    border-color: #667eea;
-  }
 }
 
-:deep(.el-date-editor) {
-  .el-input__wrapper {
-    border-radius: 12px;
-  }
-}
-
-// 响应式
 @media (max-width: 768px) {
   .hero-section {
     height: auto;
@@ -799,10 +561,6 @@ const quickSearch = (line) => {
     
     .hero-title {
       font-size: 32px;
-    }
-    
-    .hero-subtitle {
-      font-size: 16px;
     }
   }
   
@@ -830,11 +588,6 @@ const quickSearch = (line) => {
   
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .hot-line-card,
-  .feature-card {
-    padding: 20px;
   }
 }
 </style>

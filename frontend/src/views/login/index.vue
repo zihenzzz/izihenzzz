@@ -3,7 +3,7 @@
     <div class="login-container">
       <div class="login-header">
         <h1>欢迎回来</h1>
-        <p>登录火车订票系统，开启便捷出行之旅</p>
+        <p>登录汽车票预订系统，开启便捷出行之旅</p>
       </div>
       
       <el-form

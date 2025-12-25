@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 车次相关API
+// 班次相关API
 export const searchTrains = (params) => {
   return request.get('/trains/search', { params })
 }

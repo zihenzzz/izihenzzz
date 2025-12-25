@@ -3,7 +3,7 @@
     <div class="register-container">
       <div class="register-header">
         <h1>创建账号</h1>
-        <p>注册火车订票系统，享受便捷购票服务</p>
+        <p>注册汽车票预订系统，享受便捷购票服务</p>
       </div>
       
       <el-form
@@ -195,8 +195,8 @@ const handleRegister = async () => {
   
   await registerFormRef.value.validate(async (valid) => {
     if (valid) {
-      const { confirmPassword, ...userData } = registerForm
-      await userStore.doRegister(userData)
+      // 发送包含 confirmPassword 的完整数据
+      await userStore.doRegister(registerForm)
     }
   })
 }

@@ -80,7 +80,7 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
-  document.title = `${to.meta.title || '火车订票系统'} - 火车订票系统`
+  document.title = `${to.meta.title || '汽车票预订系统'} - 汽车票预订系统`
   
   const userStore = useUserStore()
   

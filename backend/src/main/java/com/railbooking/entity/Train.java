@@ -9,7 +9,7 @@ import java.time.LocalTime;
 import java.util.Map;
 
 /**
- * 车次实体类
+ * 班次实体类（汽车班次）
  */
 @Data
 @TableName("trains")
@@ -19,12 +19,12 @@ public class Train {
     private Long id;
 
     /**
-     * 车次编号，如 G101、D202、K305
+     * 班次编号，如 BJ001、GZ002
      */
     private String trainCode;
 
     /**
-     * 车次类型：G-高铁，D-动车，K-普快
+     * 车型：EXPRESS-快客，NORMAL-普通班车，SLEEPER-卧铺
      */
     private String trainType;
 
@@ -49,7 +49,7 @@ public class Train {
     private String arrivalStationName;
 
     /**
-     * 出发时间
+     * 发车时间
      */
     private LocalTime departureTime;
 
@@ -69,22 +69,22 @@ public class Train {
     private Integer duration;
 
     /**
-     * 一等座价格
+     * 商务座价格
      */
     private BigDecimal firstClassPrice;
 
     /**
-     * 二等座价格
+     * 普通座价格
      */
     private BigDecimal secondClassPrice;
 
     /**
-     * 硬卧价格
+     * 下铺价格
      */
     private BigDecimal hardSleeperPrice;
 
     /**
-     * 软卧价格
+     * 上铺价格
      */
     private BigDecimal softSleeperPrice;
 
@@ -102,6 +102,16 @@ public class Train {
      * 运营日期范围-结束
      */
     private LocalDate operateDateEnd;
+
+    /**
+     * 客运公司
+     */
+    private String busCompany;
+
+    /**
+     * 车辆型号
+     */
+    private String busModel;
 
     /**
      * 状态：0-停运，1-运营中

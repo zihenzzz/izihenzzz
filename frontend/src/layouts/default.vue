@@ -11,12 +11,12 @@
     <header class="navbar">
       <div class="nav-container">
         <div class="logo ripple-effect" @click="goHome">
-          <span class="logo-text">🚄 火车票预订系统</span>
+          <span class="logo-text">🚌 汽车票预订系统</span>
         </div>
         
         <nav class="nav-menu">
           <router-link to="/" class="nav-item ripple-effect" data-page="home">首页</router-link>
-          <router-link to="/search" class="nav-item ripple-effect" data-page="search">车次查询</router-link>
+          <router-link to="/search" class="nav-item ripple-effect" data-page="search">班次查询</router-link>
           <router-link to="/orders" class="nav-item ripple-effect" data-page="orders">我的订单</router-link>
           <router-link to="/profile" class="nav-item ripple-effect" data-page="profile">个人中心</router-link>
           <router-link v-if="userStore.isAdmin" to="/admin" class="nav-item ripple-effect" data-page="admin">管理后台</router-link>
@@ -45,7 +45,7 @@
     <!-- 底部 -->
     <footer class="footer">
       <div class="footer-content">
-        <p>&copy; 2025 火车订票系统 | 祝您旅途愉快</p>
+        <p>&copy; 2025 汽车票预订系统 | 祝您旅途愉快 🚌</p>
       </div>
     </footer>
   </div>

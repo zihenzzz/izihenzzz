@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 车站实体类
+ * 汽车站实体类
  */
 @Data
 @TableName("stations")
@@ -25,9 +25,14 @@ public class Station {
     private String city;
 
     /**
-     * 车站简称
+     * 详细地址
      */
-    private String abbreviation;
+    private String address;
+
+    /**
+     * 联系电话
+     */
+    private String phone;
 
     /**
      * 创建时间

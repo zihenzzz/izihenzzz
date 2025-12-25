@@ -68,7 +68,7 @@ public class AdminController {
         // 最近订单
         List<Order> recentOrders = orderService.lambdaQuery()
             .orderByDesc(Order::getCreateTime)
-            .limit(10)
+            .last("LIMIT 10")
             .list();
         
         stats.put("recentOrders", recentOrders);
@@ -112,15 +112,16 @@ public class AdminController {
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) Integer status) {
         
-        var query = orderService.lambdaQuery()
-            .orderByDesc(Order::getCreateTime)
-            .page(new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(page, size));
+        var queryWrapper = orderService.lambdaQuery()
+            .orderByDesc(Order::getCreateTime);
         
         if (status != null) {
-            query.eq(Order::getStatus, status);
+            queryWrapper.eq(Order::getStatus, status);
         }
         
-        List<Order> orders = query.getRecords();
+        List<Order> orders = queryWrapper
+            .page(new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(page, size))
+            .getRecords();
         return ResponseEntity.ok(Result.success(orders));
     }
 

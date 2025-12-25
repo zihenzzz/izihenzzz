@@ -14,9 +14,3 @@ public class CreateOrderDTO {
     private List<PassengerDTO> passengers;
     private String travelDate;
 }
-
-@Data
-public class PassengerDTO {
-    private String name;
-    private String idCard;
-}

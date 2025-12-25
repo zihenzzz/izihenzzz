@@ -18,17 +18,12 @@ public interface TrainMapper extends BaseMapper<Train> {
     /**
      * 根据条件搜索车次
      */
-    @Select("""
-        <script>
-        SELECT * FROM trains
-        WHERE status = 1
-        AND departure_station_name = #{departureStation}
-        AND arrival_station_name = #{arrivalStation}
-        AND operate_date_start <= #{travelDate}
-        AND operate_date_end >= #{travelDate}
-        ORDER BY departure_time ASC
-        </script>
-        """)
+    @Select("SELECT * FROM trains WHERE status = 1 " +
+            "AND departure_station_name = #{departureStation} " +
+            "AND arrival_station_name = #{arrivalStation} " +
+            "AND operate_date_start <= #{travelDate} " +
+            "AND operate_date_end >= #{travelDate} " +
+            "ORDER BY departure_time ASC")
     List<Train> searchTrains(
             @Param("departureStation") String departureStation,
             @Param("arrivalStation") String arrivalStation,

@@ -75,31 +75,36 @@ public class User implements UserDetails {
 
     // UserDetails 接口实现
     @Override
-    @TableField(exist = false)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
     @Override
-    @TableField(exist = false)
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
-    @TableField(exist = false)
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
-    @TableField(exist = false)
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
-    @TableField(exist = false)
     public boolean isEnabled() {
         return deleted == null || deleted == 0;
     }

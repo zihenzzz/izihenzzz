@@ -49,9 +49,9 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         return Jwts.builder()
-                .subject(username)
-                .issuedAt(now)
-                .expiration(expiryDate)
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
                 .signWith(key)
                 .compact();
     }
@@ -60,11 +60,11 @@ public class JwtTokenProvider {
      * 从Token获取用户名
      */
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody();
 
         return claims.getSubject();
     }
@@ -74,10 +74,10 @@ public class JwtTokenProvider {
      */
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(key)
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
                     .build()
-                    .parseSignedClaims(token);
+                    .parseClaimsJws(token);
             return true;
         } catch (MalformedJwtException ex) {
             log.error("无效的JWT Token");

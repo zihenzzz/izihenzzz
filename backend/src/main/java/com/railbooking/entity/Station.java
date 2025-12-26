@@ -25,6 +25,11 @@ public class Station {
     private String city;
 
     /**
+     * 简称/缩写
+     */
+    private String abbreviation;
+
+    /**
      * 详细地址
      */
     private String address;

@@ -22,11 +22,22 @@
           <router-link v-if="userStore.isAdmin" to="/admin" class="nav-item ripple-effect" data-page="admin">管理后台</router-link>
         </nav>
         
-        <div class="user-info ripple-effect">
-          <span id="userName">{{ userStore.isLoggedIn ? userStore.username : '未登录' }}</span>
-          <div class="user-avatar" id="userAvatar">
-            {{ userStore.isLoggedIn ? '👤' : '🔑' }}
+        <el-dropdown v-if="userStore.isLoggedIn" @command="handleCommand">
+          <div class="user-info ripple-effect">
+            <span id="userName">{{ userStore.username }}</span>
+            <div class="user-avatar" id="userAvatar">👤</div>
           </div>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+              <el-dropdown-item command="orders">我的订单</el-dropdown-item>
+              <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <div v-else class="user-info ripple-effect" @click="handleUserClick">
+          <span id="userName">未登录</span>
+          <div class="user-avatar" id="userAvatar">🔑</div>
         </div>
       </div>
     </header>
@@ -92,6 +103,14 @@ const initParticles = (container) => {
 
 const goHome = () => {
   router.push('/')
+}
+
+const handleUserClick = () => {
+  if (userStore.isLoggedIn) {
+    router.push('/profile')
+  } else {
+    router.push('/login')
+  }
 }
 
 const handleCommand = async (command) => {

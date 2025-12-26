@@ -57,7 +57,8 @@ public class AuthController {
 
             return ResponseEntity.ok(Result.success("登录成功", response));
         } catch (AuthenticationException e) {
-            log.warn("登录失败: {}", e.getMessage());
+            log.warn("登录失败: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Result.error("用户名或密码错误"));
         }

@@ -21,14 +21,15 @@ export const useUserStore = defineStore('user', () => {
         const { token: newToken, tokenType } = response.data.data
         token.value = newToken
         
-        // 获取用户信息
+        // 先保存 token 到 localStorage
+        localStorage.setItem('token', newToken)
+        
+        // 再获取用户信息
         const userResponse = await getUserInfo()
         if (userResponse.data.code === 200) {
           user.value = userResponse.data.data
+          localStorage.setItem('user', JSON.stringify(user.value))
         }
-        
-        localStorage.setItem('token', newToken)
-        localStorage.setItem('user', JSON.stringify(user.value))
         
         ElMessage.success('登录成功')
         return true

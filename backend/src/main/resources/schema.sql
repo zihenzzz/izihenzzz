@@ -115,10 +115,10 @@ CREATE TABLE IF NOT EXISTS `orders` (
     KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单表';
 
--- 插入管理员用户（密码: admin123）
+-- 插入管理员用户（密码: 123456）
 INSERT INTO `users` (`username`, `password`, `email`, `phone`, `real_name`, `id_card`, `role`) VALUES
-('admin', '$2a$10$EqKcp1WFKVQISheBxnGRqOQMjDGMwLpLBx5GKPBHZLF5xvGvKq5Aq', 'admin@busbooking.com', '13800000000', '管理员', '110101199001011234', 'ADMIN'),
-('test', '$2a$10$EqKcp1WFKVQISheBxnGRqOQMjDGMwLpLBx5GKPBHZLF5xvGvKq5Aq', 'test@busbooking.com', '13900000000', '测试用户', '110101199001011235', 'USER');
+('admin', '123456', 'admin@busbooking.com', '13800000000', '管理员', '110101199001011234', 'ADMIN'),
+('test', '123456', 'test@busbooking.com', '13900000000', '测试用户', '110101199001011235', 'USER');
 
 -- 插入汽车站数据
 INSERT INTO `stations` (`name`, `city`, `address`, `phone`) VALUES

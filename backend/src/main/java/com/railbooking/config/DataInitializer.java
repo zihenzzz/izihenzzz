@@ -37,10 +37,10 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // 检查并创建管理员用户
-        initUser("admin", "admin123", "ADMIN", "管理员", "admin@busbooking.com");
-        // 检查并创建测试用户
-        initUser("test", "test123", "USER", "测试用户", "test@busbooking.com");
+        // 检查并创建管理员用户（密码: 123456）
+        initUser("admin", "123456", "ADMIN", "管理员", "admin@busbooking.com");
+        // 检查并创建测试用户（密码: 123456）
+        initUser("test", "123456", "USER", "测试用户", "test@busbooking.com");
         
         // 初始化座位数据
         initSeats();
